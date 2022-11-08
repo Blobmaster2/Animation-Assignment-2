@@ -10,6 +10,7 @@ public class RacerBehaviour : MonoBehaviour
     [Range(1, 32)]
     public int sampleRate = 16;
     bool updatedVelocity;
+    bool isVeering = false;
 
     [System.Serializable]
     class SamplePoint
@@ -34,6 +35,11 @@ public class RacerBehaviour : MonoBehaviour
 
     private void Start()
     {
+
+        StartCoroutine(WaitForVeer());
+
+        ChangeColor();
+
         for (int i = 0; i < GameObject.Find("Track points").transform.childCount; i++)
         {
             points.Add(GameObject.Find("Track points").transform.GetChild(i).transform);
@@ -78,6 +84,18 @@ public class RacerBehaviour : MonoBehaviour
         }
     }
 
+    private void ChangeColor()
+    {
+        Material instanceMaterial = new Material(GetComponent<MeshRenderer>().sharedMaterial);
+        GetComponent<MeshRenderer>().material = instanceMaterial;
+
+        int r = Random.Range(0, 256);
+        int g = Random.Range(0, 256);
+        int b = Random.Range(0, 256);
+
+        instanceMaterial.color = new Color(r / 255f, g / 255f, b / 255f, 1f);
+    }
+
     private void Update()
     {
         Vector3 currentPos = transform.position;
@@ -114,10 +132,16 @@ public class RacerBehaviour : MonoBehaviour
 
         if (!updatedVelocity)
         {
-            rb.velocity = (CatmullRomFunc(p0, p1, p2, p3, GetAdjustedT()) - currentPos) * speed;
+            rb.velocity = (CatmullRomFunc(p0, p1, p2, p3, GetAdjustedT()) - currentPos).normalized * speed;
             updatedVelocity = true;
         }
         transform.up = rb.velocity;
+
+
+        if (isVeering)
+        {
+            rb.AddForce(Vector3.right);
+        }
     }
 
     float GetAdjustedT()
@@ -157,5 +181,23 @@ public class RacerBehaviour : MonoBehaviour
         Vector3 c = 2f * p0 - 5f * p1 + 4f * p2 - p3;
         Vector3 d = -p0 + 3f * p1 - 3f * p2 + p3;
         return 0.5f * (a + (b * t) + (c * t * t) + (d * t * t * t));
+    }
+
+    IEnumerator WaitForVeer()
+    {
+        yield return new WaitForSeconds(Random.Range(3, 10));
+
+        currentSample += 2;
+        StartCoroutine(WaitForStopVeer());
+        StartCoroutine(WaitForVeer());
+    }
+
+    IEnumerator WaitForStopVeer()
+    {
+        isVeering = true;
+
+        yield return new WaitForSeconds(Random.Range(1, 2));
+
+        isVeering = false;
     }
 }

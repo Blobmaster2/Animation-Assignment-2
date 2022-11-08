@@ -4,15 +4,16 @@ using UnityEngine;
 
 public class RacerSpawner : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    public int racerCount;
+    public GameObject racerPrefab;
+    public Material racerMaterial;
+    public Transform start;
 
-    // Update is called once per frame
-    void Update()
+    void Awake()
     {
-        
+        for (int i = 0; i < racerCount; i++)
+        {
+            Instantiate(racerPrefab, start.position, Quaternion.Euler(90, 0, 0));
+        }
     }
 }
