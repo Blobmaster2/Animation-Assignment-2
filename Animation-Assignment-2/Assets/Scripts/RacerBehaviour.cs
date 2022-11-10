@@ -142,6 +142,7 @@ public class RacerBehaviour : MonoBehaviour
 
             updatedVelocity = false;
             currentSample++;
+            Debug.Log($"ID: {id}, Index: {currentIndex}, Sample: {currentSample}");
         }
 
         Vector3 p0 = points[(currentIndex - 1 + points.Count) % points.Count].position;
@@ -175,7 +176,23 @@ public class RacerBehaviour : MonoBehaviour
     float GetAdjustedT()
     {
         SamplePoint current = table[currentIndex][currentSample];
-        SamplePoint next = table[currentIndex][currentSample + 1];
+        SamplePoint next;
+
+        if (currentSample + 1 >= sampleRate - 1)
+        {
+            if (currentIndex + 1 >= points.Count)
+            {
+                next = table[0][0];
+            }
+            else
+            {
+                next = table[currentIndex + 1][0];
+            }
+        }
+        else
+        {
+            next = table[currentIndex][currentSample + 1];
+        }
 
         return Mathf.Lerp(current.samplePosition, next.samplePosition,
             (distance - current.accumulatedDistance) / (next.accumulatedDistance - current.accumulatedDistance)

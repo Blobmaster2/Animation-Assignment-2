@@ -190,7 +190,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9ee75c74b113e0f44b25b8ceecccca51, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 15
+  speed: 45
   sampleRate: 32
   veerStrength:
     serializedVersion: 2
@@ -293,7 +293,7 @@ CapsuleCollider:
   m_Material: {fileID: 0}
   m_IsTrigger: 1
   m_Enabled: 1
-  m_Radius: 15.45
+  m_Radius: 25.255941
   m_Height: 54.78
   m_Direction: 0
-  m_Center: {x: 0, y: 16.5, z: 0}
+  m_Center: {x: 0, y: 26.305943, z: -8.0917315e-14}
