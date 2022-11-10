@@ -8,13 +8,13 @@ TagManager:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Racer
   - Water
   - UI
-  - 
-  - 
-  - 
-  - 
+  - RacerProx
+  - VisionProx
+  - Obstacle
+  - Powerup
   - 
   - 
   - 

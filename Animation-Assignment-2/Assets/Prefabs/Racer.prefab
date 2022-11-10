@@ -1,5 +1,81 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &2743777071157151437
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6005961291076712546}
+  - component: {fileID: 5793059781683961333}
+  - component: {fileID: 4002563468618911525}
+  - component: {fileID: 2344603090539274066}
+  m_Layer: 6
+  m_Name: Racer Proximity
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6005961291076712546
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2743777071157151437}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4001675990881924808}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!136 &5793059781683961333
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2743777071157151437}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  m_Radius: 1.53
+  m_Height: 8.22
+  m_Direction: 0
+  m_Center: {x: 0, y: 2.63, z: 0}
+--- !u!136 &4002563468618911525
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2743777071157151437}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  m_Radius: 1.45
+  m_Height: 6.01
+  m_Direction: 1
+  m_Center: {x: 2, y: 0, z: 0}
+--- !u!136 &2344603090539274066
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2743777071157151437}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  m_Radius: 1.45
+  m_Height: 6.01
+  m_Direction: 1
+  m_Center: {x: -2, y: 0, z: 0}
 --- !u!1 &4001675990881924805
 GameObject:
   m_ObjectHideFlags: 0
@@ -14,7 +90,7 @@ GameObject:
   - component: {fileID: 4001675990881924807}
   - component: {fileID: 4001675990881924804}
   - component: {fileID: 4001675990881924811}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Racer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -33,7 +109,8 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 4001675991340982017}
+  - {fileID: 6005961291076712546}
+  - {fileID: 6475902857933619798}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
@@ -115,6 +192,49 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speed: 15
   sampleRate: 32
+  veerStrength:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: -0.035104208
+      outSlope: -0.035104208
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.8066915
+    - serializedVersion: 3
+      time: 0.34720364
+      value: 0.95088726
+      inSlope: -0.52986133
+      outSlope: -0.52986133
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.41139022
+    - serializedVersion: 3
+      time: 0.74883324
+      value: 0.06588814
+      inSlope: -0.6399799
+      outSlope: -0.6399799
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.6680807
+    - serializedVersion: 3
+      time: 0.99986356
+      value: 0.000027164817
+      inSlope: -0.2623626
+      outSlope: -0.2623626
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  id: 0
 --- !u!54 &4001675990881924811
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -129,9 +249,9 @@ Rigidbody:
   m_UseGravity: 0
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 0
+  m_Constraints: 84
   m_CollisionDetection: 0
---- !u!1 &4001675991340982046
+--- !u!1 &7605244040153596420
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -139,40 +259,41 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 4001675991340982017}
-  - component: {fileID: 4001675991340982016}
-  m_Layer: 0
-  m_Name: Proximity
+  - component: {fileID: 6475902857933619798}
+  - component: {fileID: 1451176764187029046}
+  m_Layer: 7
+  m_Name: Vision Proximity
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &4001675991340982017
+--- !u!4 &6475902857933619798
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4001675991340982046}
+  m_GameObject: {fileID: 7605244040153596420}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 4001675990881924808}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!135 &4001675991340982016
-SphereCollider:
+--- !u!136 &1451176764187029046
+CapsuleCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4001675991340982046}
+  m_GameObject: {fileID: 7605244040153596420}
   m_Material: {fileID: 0}
   m_IsTrigger: 1
   m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 5
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Radius: 6.38
+  m_Height: 14.3
+  m_Direction: 0
+  m_Center: {x: 0, y: 5.85, z: 0}

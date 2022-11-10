@@ -13,7 +13,8 @@ public class RacerSpawner : MonoBehaviour
     {
         for (int i = 0; i < racerCount; i++)
         {
-            Instantiate(racerPrefab, start.position, Quaternion.Euler(90, 0, 0));
+            var racer = Instantiate(racerPrefab, start.position + new Vector3(i, 0, 0), Quaternion.Euler(90, 0, 0));
+            racer.GetComponent<RacerBehaviour>().id = i;
         }
     }
 }

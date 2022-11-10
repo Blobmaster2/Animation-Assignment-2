@@ -9,8 +9,15 @@ public class RacerBehaviour : MonoBehaviour
     public float speed = 1.0f;
     [Range(1, 32)]
     public int sampleRate = 16;
+    public AnimationCurve veerStrength;
+    public int id;
+
     bool updatedVelocity;
     bool isVeering = false;
+
+    float timeSinceVeer;
+    float maxVeerTime;
+    float timeSinceVelocityUpdate;
 
     [System.Serializable]
     class SamplePoint
@@ -35,7 +42,6 @@ public class RacerBehaviour : MonoBehaviour
 
     private void Start()
     {
-
         StartCoroutine(WaitForVeer());
 
         ChangeColor();
@@ -46,6 +52,7 @@ public class RacerBehaviour : MonoBehaviour
         }
 
         rb = GetComponent<Rigidbody>();
+
         //make sure there are 4 points, else disable the component
         if (points.Count < 4)
         {
@@ -64,7 +71,7 @@ public class RacerBehaviour : MonoBehaviour
 
             for (int sample = 1; sample <= sampleRate; sample++)
             {
-                float t = (float)sample / (float)sampleRate;
+                float t = sample / (float)sampleRate;
                 Vector3 currentPos = CatmullRomFunc(
                     points[(i - 1 + points.Count) % points.Count].position, 
                     points[i].position, 
@@ -98,13 +105,25 @@ public class RacerBehaviour : MonoBehaviour
 
     private void Update()
     {
+        Vector3 velocityDir = rb.velocity.normalized;
+        transform.rotation = Quaternion.Euler(90, Mathf.Atan2(velocityDir.x, velocityDir.z) * 180 / Mathf.PI, 0);
+
+        UpdateCatmullTrack();
+
+        //transform.up = rb.velocity;
+
+        if (isVeering)
+        {
+            Veer();
+            timeSinceVeer += Time.deltaTime;
+        }
+    }
+
+    private void UpdateCatmullTrack()
+    {
         Vector3 currentPos = transform.position;
-
         int size = points.Count;
-
         distance += speed * Time.smoothDeltaTime;
-
-        //check if we need to update our samples
 
         while (distance > table[currentIndex][currentSample].accumulatedDistance)
         {
@@ -134,13 +153,16 @@ public class RacerBehaviour : MonoBehaviour
         {
             rb.velocity = (CatmullRomFunc(p0, p1, p2, p3, GetAdjustedT()) - currentPos).normalized * speed;
             updatedVelocity = true;
+            timeSinceVelocityUpdate = 0;
         }
-        transform.up = rb.velocity;
-
-
-        if (isVeering)
+        else
         {
-            rb.AddForce(Vector3.right);
+            timeSinceVelocityUpdate += Time.deltaTime;
+        }
+
+        if (timeSinceVelocityUpdate > 0.5f)
+        {
+            updatedVelocity = false;
         }
     }
 
@@ -183,21 +205,47 @@ public class RacerBehaviour : MonoBehaviour
         return 0.5f * (a + (b * t) + (c * t * t) + (d * t * t * t));
     }
 
+    void Veer()
+    {
+        rb.AddForce(new Vector3(Random.Range(rb.velocity.normalized.x - 0.5f, rb.velocity.normalized.x + 0.5f), 0, Random.Range(rb.velocity.normalized.z - 0.5f, rb.velocity.normalized.z + 0.5f)).normalized
+            * veerStrength.Evaluate(timeSinceVeer / maxVeerTime));
+    }
+
     IEnumerator WaitForVeer()
     {
-        yield return new WaitForSeconds(Random.Range(3, 10));
+        yield return new WaitForSeconds(Random.Range(6, 10));
 
         currentSample += 2;
+
+        if (currentSample >= sampleRate - 1)
+        {
+            currentSample = 0;
+            currentIndex++;
+        }
+
         StartCoroutine(WaitForStopVeer());
-        StartCoroutine(WaitForVeer());
     }
 
     IEnumerator WaitForStopVeer()
     {
         isVeering = true;
+        maxVeerTime = Random.Range(2, 4);
 
-        yield return new WaitForSeconds(Random.Range(1, 2));
+        yield return new WaitForSeconds(maxVeerTime);
 
         isVeering = false;
+        StartCoroutine(WaitForVeer());
+    }
+
+    private void OnTriggerStay(Collider collision)
+    {
+        if (collision.gameObject.layer == 3)
+        {
+            Vector3 direction = transform.position - collision.transform.position;
+
+            rb.AddForce(direction / Vector3.Distance(transform.position, collision.transform.position) * speed/3);
+
+            Debug.Log($"{id} colliding with {collision.GetComponent<RacerBehaviour>().id}, applying force {direction / Vector3.Distance(transform.position, collision.transform.position) * 2}");
+        }
     }
 }
