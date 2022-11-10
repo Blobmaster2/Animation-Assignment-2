@@ -114,7 +114,7 @@ public class RacerBehaviour : MonoBehaviour
 
         if (isVeering)
         {
-            Veer();
+            //Veer();
             timeSinceVeer += Time.deltaTime;
         }
     }
@@ -151,7 +151,8 @@ public class RacerBehaviour : MonoBehaviour
 
         if (!updatedVelocity)
         {
-            rb.velocity = (CatmullRomFunc(p0, p1, p2, p3, GetAdjustedT()) - currentPos).normalized * speed;
+            rb.AddRelativeForce(Vector3.forward * speed);
+            rb.AddForce((CatmullRomFunc(p0, p1, p2, p3, GetAdjustedT()) - currentPos).normalized * speed * Vector3.Distance(CatmullRomFunc(p0, p1, p2, p3, GetAdjustedT()), currentPos));
             updatedVelocity = true;
             timeSinceVelocityUpdate = 0;
         }
@@ -160,9 +161,14 @@ public class RacerBehaviour : MonoBehaviour
             timeSinceVelocityUpdate += Time.deltaTime;
         }
 
-        if (timeSinceVelocityUpdate > 0.5f)
+        if (timeSinceVelocityUpdate > 0.25f)
         {
             updatedVelocity = false;
+        }
+
+        if (rb.velocity.magnitude > speed)
+        {
+            rb.AddForce(-rb.velocity);
         }
     }
 
@@ -217,12 +223,6 @@ public class RacerBehaviour : MonoBehaviour
 
         currentSample += 2;
 
-        if (currentSample >= sampleRate - 1)
-        {
-            currentSample = 0;
-            currentIndex++;
-        }
-
         StartCoroutine(WaitForStopVeer());
     }
 
@@ -241,11 +241,16 @@ public class RacerBehaviour : MonoBehaviour
     {
         if (collision.gameObject.layer == 3)
         {
-            Vector3 direction = transform.position - collision.transform.position;
+            Vector3 direction = (transform.position - collision.transform.position).normalized;
 
-            rb.AddForce(direction / Vector3.Distance(transform.position, collision.transform.position) * speed/3);
+            rb.AddForce(direction / Vector3.Distance(transform.position, collision.transform.position) * (speed / 3));
+        }
 
-            Debug.Log($"{id} colliding with {collision.GetComponent<RacerBehaviour>().id}, applying force {direction / Vector3.Distance(transform.position, collision.transform.position) * 2}");
+        if (collision.gameObject.layer == 9)
+        {
+            Vector3 direction = (collision.transform.position - transform.position).normalized;
+
+            rb.AddForce(direction * Vector3.Distance(transform.position, collision.transform.position) * (speed / 3));
         }
     }
 }
