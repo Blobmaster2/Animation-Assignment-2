@@ -11,9 +11,11 @@ public class RacerBehaviour : MonoBehaviour
     public int sampleRate = 16;
     public AnimationCurve veerStrength;
     public int id;
+    public float speedMultiplier = 1;
 
     bool updatedVelocity;
     bool isVeering = false;
+    bool catmullEnabled = true;
 
     float timeSinceVeer;
     float maxVeerTime;
@@ -37,8 +39,8 @@ public class RacerBehaviour : MonoBehaviour
 
     float distance = 0f;
     float accumDistance = 0f;
-    int currentIndex = 0;
-    int currentSample = 0;
+    public int currentIndex = 0;
+    public int currentSample = 0;
 
     private void Start()
     {
@@ -110,12 +112,18 @@ public class RacerBehaviour : MonoBehaviour
 
         UpdateCatmullTrack();
 
-        //transform.up = rb.velocity;
-
         if (isVeering)
         {
-            //Veer();
+            Veer();
             timeSinceVeer += Time.deltaTime;
+        }
+    }
+
+    private void LateUpdate()
+    {
+        if (rb.velocity.magnitude > speed * speedMultiplier)
+        {
+            rb.AddForce(-rb.velocity);
         }
     }
 
@@ -123,9 +131,10 @@ public class RacerBehaviour : MonoBehaviour
     {
         Vector3 currentPos = transform.position;
         int size = points.Count;
-        distance += speed * Time.smoothDeltaTime;
+        distance += rb.velocity.magnitude * Time.smoothDeltaTime;
 
-        while (distance > table[currentIndex][currentSample].accumulatedDistance)
+        while (distance > table[currentIndex]
+            [currentSample].accumulatedDistance)
         {
             if (currentSample >= sampleRate - 1)
             {
@@ -142,7 +151,6 @@ public class RacerBehaviour : MonoBehaviour
 
             updatedVelocity = false;
             currentSample++;
-            Debug.Log($"ID: {id}, Index: {currentIndex}, Sample: {currentSample}");
         }
 
         Vector3 p0 = points[(currentIndex - 1 + points.Count) % points.Count].position;
@@ -152,8 +160,9 @@ public class RacerBehaviour : MonoBehaviour
 
         if (!updatedVelocity)
         {
-            rb.AddRelativeForce(Vector3.forward * speed);
-            rb.AddForce((CatmullRomFunc(p0, p1, p2, p3, GetAdjustedT()) - currentPos).normalized * speed * Vector3.Distance(CatmullRomFunc(p0, p1, p2, p3, GetAdjustedT()), currentPos));
+            Vector3 catmullVec = CatmullRomFunc(p0, p1, p2, p3, GetAdjustedT());
+
+            if (catmullEnabled) rb.AddForce((catmullVec - currentPos).normalized * speed * Vector3.Distance(catmullVec, currentPos) * speedMultiplier);
             updatedVelocity = true;
             timeSinceVelocityUpdate = 0;
         }
@@ -167,10 +176,7 @@ public class RacerBehaviour : MonoBehaviour
             updatedVelocity = false;
         }
 
-        if (rb.velocity.magnitude > speed)
-        {
-            rb.AddForce(-rb.velocity);
-        }
+        rb.AddRelativeForce(Vector3.forward * speed);
     }
 
     float GetAdjustedT()
@@ -230,15 +236,18 @@ public class RacerBehaviour : MonoBehaviour
 
     void Veer()
     {
-        rb.AddForce(new Vector3(Random.Range(rb.velocity.normalized.x - 0.5f, rb.velocity.normalized.x + 0.5f), 0, Random.Range(rb.velocity.normalized.z - 0.5f, rb.velocity.normalized.z + 0.5f)).normalized
-            * veerStrength.Evaluate(timeSinceVeer / maxVeerTime));
+        bool isRight = Random.Range(0, 2) == 0 ? false : true;
+
+        Vector3 dir = isRight ? Vector3.right : Vector3.left;
+
+        rb.AddRelativeForce(dir * veerStrength.Evaluate(timeSinceVeer / maxVeerTime) * speed);
+
+        Debug.Log(dir);
     }
 
     IEnumerator WaitForVeer()
     {
         yield return new WaitForSeconds(Random.Range(6, 10));
-
-        currentSample += 2;
 
         StartCoroutine(WaitForStopVeer());
     }
@@ -254,20 +263,78 @@ public class RacerBehaviour : MonoBehaviour
         StartCoroutine(WaitForVeer());
     }
 
+    IEnumerator WaitForReenableCatmull()
+    {
+        catmullEnabled = false;
+
+        yield return new WaitForSeconds(1f / (speed / 7.5f));
+
+        catmullEnabled = true;
+    }
+
     private void OnTriggerStay(Collider collision)
     {
         if (collision.gameObject.layer == 3)
         {
-            Vector3 direction = (transform.position - collision.transform.position).normalized;
-
-            rb.AddForce(direction / Vector3.Distance(transform.position, collision.transform.position) * (speed / 3));
+            EvadeRacers(collision);
         }
 
         if (collision.gameObject.layer == 9)
         {
-            Vector3 direction = (collision.transform.position - transform.position).normalized;
+            SeekPowerup(collision);
 
-            rb.AddForce(direction * Vector3.Distance(transform.position, collision.transform.position) * (speed / 3));
+            if (catmullEnabled)
+            {
+                StartCoroutine(WaitForReenableCatmull());
+            }
         }
+
+        if (collision.gameObject.layer == 8)
+        {
+            EvadeObstacles(collision);
+
+            if (catmullEnabled)
+            {
+                StartCoroutine(WaitForReenableCatmull());
+            }
+        }
+    }
+
+    private void OnTriggerExit(Collider collision)
+    {
+        if (collision.gameObject.layer == 9 || collision.gameObject.layer == 8)
+        {
+            catmullEnabled = true;
+        }
+    }
+
+    void SeekPowerup(Collider powerup)
+    {
+        float distance = Vector3.Distance(transform.position, powerup.transform.position);
+        Vector3 direction = (powerup.transform.position - transform.position).normalized;
+        rb.AddForce(direction * speed);
+    }
+
+    void EvadeRacers(Collider racer)
+    {
+        Vector3 direction = (transform.position - racer.transform.position).normalized;
+        rb.AddForce(direction * speed / Vector3.Distance(transform.position, racer.transform.position));
+    }
+
+    void EvadeObstacles(Collider obstacle)
+    {
+        Vector3 direction;
+        if (Vector3.Cross(transform.up.normalized, (transform.position - obstacle.gameObject.transform.position).normalized).y > 0)
+        {
+            direction = Vector3.right;
+            Debug.Log("turning right");
+        }
+        else
+        {
+            direction = Vector3.left;
+            Debug.Log("turning left");
+        }
+
+        rb.AddRelativeForce(direction * speed);
     }
 }
