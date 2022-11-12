@@ -44,7 +44,7 @@ CapsuleCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   m_Radius: 1.45
-  m_Height: 4
+  m_Height: 7
   m_Direction: 1
   m_Center: {x: 2, y: 0, z: 0}
 --- !u!136 &2344603090539274066
@@ -58,7 +58,7 @@ CapsuleCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   m_Radius: 1.45
-  m_Height: 4
+  m_Height: 7
   m_Direction: 1
   m_Center: {x: -2, y: 0, z: 0}
 --- !u!1 &4001675990881924805
@@ -222,6 +222,8 @@ MonoBehaviour:
     m_RotationOrder: 4
   id: 0
   speedMultiplier: 1
+  veerChance: 5
+  catmullEnabled: 1
   currentIndex: 0
   currentSample: 0
 --- !u!54 &4001675990881924811
@@ -282,10 +284,10 @@ CapsuleCollider:
   m_Material: {fileID: 0}
   m_IsTrigger: 1
   m_Enabled: 1
-  m_Radius: 2.65
-  m_Height: 7.32
+  m_Radius: 2.45
+  m_Height: 15.19
   m_Direction: 1
-  m_Center: {x: 0, y: 3.4, z: 0}
+  m_Center: {x: 0, y: 6.9, z: 0}
 --- !u!1 &7605244040153596420
 GameObject:
   m_ObjectHideFlags: 0
